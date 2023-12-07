@@ -2,7 +2,7 @@ import vk_api, vk
 from vk_api.longpoll import VkLongPoll, VkEventType
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from data import vk_token, gs_read
+from data import gs_read
 
 TOKEN = 'vk1.a.WYRyeCV_VKvbVfkxmzZ6hsGBaU0egHSJ1tFinYfRFLF9rG7SeJnV35QdECvgxvLf6hkL1SjM-pZvaBhtsyywrQxxjWU-SV5JCyflr9YLnUx0ZJQhnv3fbExquErCbLR4o3-e1VUpcDf1or41woiHfFAGClpTM2Xj9sV3xUKnRK3EUbCOEvVJLtsIMeGtTHQyr3UnaTw4_xDV3P2oqJd74A'
 GROUP_ID = '223402170'
@@ -19,10 +19,15 @@ spreadsheet = client.open('Вопросы-Ответы')
 def search_posts_by_keyword(keyword):
     session = vk_api.VkApi(token='vk1.a.1bawSWfDbqe-HaFAIzLTCy8PHaolkFeXMp87avJHEOdhWWG1Ji01su3ez3PbOSyIbkpbl_Qh6Ip4cyxx0lbg_rJ5bgd4ankuvY0TXgV15zQpOVSjVyyxNLXBG67AtXjTqikfQ9GXdy0pRdHFWBEzCHmLHoUJC7sCbaXrnFgNpuF1HJtlMOV53D6cpsFHkG9s1ilo9YCLnJXxR45tGH1oUg')
     vk = session.get_api()
-    response = vk.wall.get(owner_id='-' + GROUP_ID, query=keyword, count=10)
+    response = vk.wall.get(owner_id='-' + GROUP_ID, count=100)
     posts = response['items']
 
-    return posts
+    found_posts = list()
+    for post in posts:
+        if keyword.lower() in post['text'].lower():
+            found_posts.append(post['text'])
+
+    return found_posts
 
 rows = gs_read.get_rows(spreadsheet)
 questions = gs_read.get_questions(rows)
@@ -38,7 +43,7 @@ for event in longpoll.listen():
         if event.text.lower() in questions:
             index = questions.index(event.text.lower())
             send_message(event.user_id, f'{answers[index]}')
-        elif event.text.startswith('искать'):
+        elif event.text.lower().startswith('искать'):
             keyword = event.text.split()[1]
             found_posts = search_posts_by_keyword(keyword)
             if len(found_posts) > 0:
