@@ -16,6 +16,10 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('botvk-406913-d3f1f2b90
 client = gspread.authorize(creds)
 spreadsheet = client.open('Вопросы-Ответы')
 
+rows = gs_read.get_rows(spreadsheet)
+questions = gs_read.get_questions(rows)
+answers = gs_read.get_answers(rows)
+
 def search_posts_by_keyword(keyword):
     session = vk_api.VkApi(token='vk1.a.1bawSWfDbqe-HaFAIzLTCy8PHaolkFeXMp87avJHEOdhWWG1Ji01su3ez3PbOSyIbkpbl_Qh6Ip4cyxx0lbg_rJ5bgd4ankuvY0TXgV15zQpOVSjVyyxNLXBG67AtXjTqikfQ9GXdy0pRdHFWBEzCHmLHoUJC7sCbaXrnFgNpuF1HJtlMOV53D6cpsFHkG9s1ilo9YCLnJXxR45tGH1oUg')
     vk = session.get_api()
@@ -28,10 +32,6 @@ def search_posts_by_keyword(keyword):
             found_posts.append(post['text'])
 
     return found_posts
-
-rows = gs_read.get_rows(spreadsheet)
-questions = gs_read.get_questions(rows)
-answers = gs_read.get_answers(rows)
 
 def send_message(user_id, message):
     vk_session.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
