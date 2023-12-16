@@ -1,8 +1,9 @@
-import vk_api, vk
+import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from data import gs_read
+from scripts.vk_bot import VkBot
 
 TOKEN = 'vk1.a.WYRyeCV_VKvbVfkxmzZ6hsGBaU0egHSJ1tFinYfRFLF9rG7SeJnV35QdECvgxvLf6hkL1SjM-pZvaBhtsyywrQxxjWU-SV5JCyflr9YLnUx0ZJQhnv3fbExquErCbLR4o3-e1VUpcDf1or41woiHfFAGClpTM2Xj9sV3xUKnRK3EUbCOEvVJLtsIMeGtTHQyr3UnaTw4_xDV3P2oqJd74A'
 GROUP_ID = '223402170'
@@ -20,38 +21,18 @@ rows = gs_read.get_rows(spreadsheet)
 questions = gs_read.get_questions(rows)
 answers = gs_read.get_answers(rows)
 
-def search_posts_by_keyword(keyword):
-    session = vk_api.VkApi(token='vk1.a.1bawSWfDbqe-HaFAIzLTCy8PHaolkFeXMp87avJHEOdhWWG1Ji01su3ez3PbOSyIbkpbl_Qh6Ip4cyxx0lbg_rJ5bgd4ankuvY0TXgV15zQpOVSjVyyxNLXBG67AtXjTqikfQ9GXdy0pRdHFWBEzCHmLHoUJC7sCbaXrnFgNpuF1HJtlMOV53D6cpsFHkG9s1ilo9YCLnJXxR45tGH1oUg')
-    vk = session.get_api()
-    response = vk.wall.get(owner_id='-' + GROUP_ID, count=100)
-    posts = response['items']
-
-    found_posts = list()
-    for post in posts:
-        if keyword.lower() in post['text'].lower():
-            found_posts.append(post['text'])
-
-    return found_posts
-
 def send_message(user_id, message):
     vk_session.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
 
+def main():
+    print('Сервер запущен')
+    for event in longpoll.listen():
+        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+            print('New message')
+            print(f'For me by: {event.user_id}', end=' ')
+            bot = VkBot(event.user_id, questions, answers)
+            send_message(event.user_id, bot.new_message(event.text))
+            print('Text:', event.text)
 
-print('Сервер запущен')
-for event in longpoll.listen():
-    if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-        if event.text.lower() in questions:
-            index = questions.index(event.text.lower())
-            send_message(event.user_id, f'{answers[index]}')
-        elif event.text.lower().startswith('искать'):
-            keyword = event.text.split()[1]
-            found_posts = search_posts_by_keyword(keyword)
-            if len(found_posts) > 0:
-                response = "Найдено {} постов:nn{}".format(len(found_posts), 'nn'.join(found_posts))
-            else:
-                response = "Постов по ключевому слову '{}' не найдено".format(keyword)
-            send_message(event.user_id, response)
-        elif event.text.lower() == 'привет':
-            send_message(event.user_id, 'Привет!')
-        elif event.text.lower() == 'пока':
-            send_message(event.user_id, 'До свидания!')
+if __name__ == '__main__':
+    main()
