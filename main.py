@@ -31,7 +31,7 @@ def main():
             print('New message')
             print(f'For me by: {event.user_id}', end=' ')
             bot = VkBot(event.user_id, questions, answers)
-            send_message(event.user_id, bot.new_message(event.text))
+            send_message(event.user_id, bot.get_answers(event.text))
             print('Text:', event.text)
 
 if __name__ == '__main__':
