@@ -26,13 +26,23 @@ def send_message(user_id, message):
 
 def main():
     print('Сервер запущен')
-    for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            print('New message')
-            print(f'For me by: {event.user_id}', end=' ')
-            bot = VkBot(event.user_id, questions, answers)
-            send_message(event.user_id, bot.get_answers(event.text))
-            print('Text:', event.text)
+    try:
+        for event in longpoll.listen():
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                if event.text.lower() in ['здравствуйте', 'привет', 'хай', 'ку', 'приветствуйтесь']:
+                    send_message(event.user_id, 'Здравствуйте!')
+                elif event.text.lower() in ['до свидания', 'пока']:
+                    send_message(event.user_id, 'До свидания!')
+                else:
+                    print('New message')
+                    print(f'For me by: {event.user_id}', end=' ')
+                    bot = VkBot(event.user_id, questions, answers)
+                    send_message(event.user_id, bot.get_answers(event.text))
+                    print('Text:', event.text)
+    except Exception as e:
+        print(f'Что-то пошло не так: {e}')
+        print('Обратитесь к создателю')
+        input('Нажмите любую клавишу для выхода...')
 
 if __name__ == '__main__':
     main()
