@@ -23,8 +23,8 @@ class VkBot:
         vk = session.get_api()
         response = vk.wall.get(owner_id='-' + self._GROUP_ID, count=50)
 
-        if keyword is None:
-            return None
+        if keyword == '':
+            return []
         
         posts = response['items']
         found_posts = []
