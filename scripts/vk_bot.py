@@ -1,19 +1,21 @@
 import vk_api
+import re
 
 class VkBot:
     def __init__(self, user_id, questions, answers):
         self._USER_ID = user_id
         self._QUESTIONS = questions
         self._ANSWERS = answers
-        self._KEYWORDS = ['долг', 'без проекта', 'без команды', 'нет проекта', 'нет команды', 'контрольные точки', 'итерации', 'teamproject', 'исследовательского трека', 'без проектов', 'контрольная точка', 'стартап', 'диплом', 'балл', 'оценил', 'пересдач', 'форм', 'тем', 'участник']
+        self._KEYWORDS = ['долг', 'проекта', 'команды', 'проекта', 'нет команды', 'контрольные точки', 'итерации', 'teamproject', 'исследовательского трека', 'без проектов', 'контрольная точка', 'стартап', 'диплом', 'балл', 'оценил', 'пересдач', 'форм', 'тем', 'участник', 'команд', 'групп']
 
         self._TOKEN = 'vk1.a.1bawSWfDbqe-HaFAIzLTCy8PHaolkFeXMp87avJHEOdhWWG1Ji01su3ez3PbOSyIbkpbl_Qh6Ip4cyxx0lbg_rJ5bgd4ankuvY0TXgV15zQpOVSjVyyxNLXBG67AtXjTqikfQ9GXdy0pRdHFWBEzCHmLHoUJC7sCbaXrnFgNpuF1HJtlMOV53D6cpsFHkG9s1ilo9YCLnJXxR45tGH1oUg'
         self._GROUP_ID = '223402170'
     
     def _get_keyword(self, message):
+        text = re.sub('\W+', ' ', message)
         keyword = ''
         for key in self._KEYWORDS:
-            if key in message.lower():
+            if key in text.lower():
                 keyword = key
         
         return keyword
