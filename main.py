@@ -30,9 +30,11 @@ def main():
         for event in longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
                 if event.text.lower() in ['здравствуйте', 'привет', 'хай', 'ку', 'приветствуйтесь']:
-                    send_message(event.user_id, 'Здравствуйте!')
+                    send_message(event.user_id, 'Здравствуйте! Я чат-бот Проектоного практикума. Если хотите узнать, как работает, то пишите \'Инструкция\'')
                 elif event.text.lower() in ['до свидания', 'пока']:
                     send_message(event.user_id, 'До свидания!')
+                elif event.text.lower() == 'инструкция':
+                    send_message(event.user_id, "Чат-бот может отвечать на вашы вопросы и находить постов по ключевым словом.\nПишите ваш вопрос либо ключевое слово. Если бот не находит на ваш вопрос, то данный вопрос будет передан к администрации группы Проектного практикума.")
                 else:
                     print('New message')
                     print(f'For me by: {event.user_id}', end=' ')
